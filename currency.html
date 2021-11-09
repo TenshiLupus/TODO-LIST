@@ -9,37 +9,38 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
 
-            document.querySelector('form').onsubmit() = function {
+            document.querySelector('form').onsubmit = function() {
 
-                fetch('http://api.exchangeratesapi.io/latest?base=USD')
+                fetch("https://api.exchangeratesapi.io/latest?base=USD&access_key=ACCESS_KEY")
                     .then(response => response.json())
                     .then(data => {
-                        const currency = document.querrySelector();
-                        const rate = data.rates.EUR;
-                        document.querySelector('body').innerHTML = '1 USD is equal to ${rate} EUR.';
+                        const currency = document.querySelector('#currency').value;
+                        const rate = data.rates[currency];
+                        if (rate !== undefined){
+                            document.querySelector('#result').innerHTML = `1 USD is equal to ${rate.toFixed(3)} ${currency}.`;
+                        } else {
+                            document.querySelector("#result").innerHTML = 'Invalid Currency.';
+                        }
+                      
                         console.log(data);
+                    })
+                    .catch(error => {
+                        console.log("Error", error);
                     });
-
                     return false;
-            }
-
-        fetch('http://api.exchangeratesapi.io/latest?base=USD')
-            .then(response => response.json())
-            .then(data => {
-                const currency = document.querySelector('#currency').value;arguments
-                const rate = data.rates.EUR;
-                document.querySelector('body').innerHTML = '1 USD is equal to ${rate} EUR.';
-            })
+                }
         });
+
     </script>
 </head>
 
 <body>
     <form>
-        <input id="submit" placeholder='Currency' type="text">
+        <input id="currency" placeholder="Currency" type="text">
         <input type="submit" value="Convert">
     </form>
-    <div id=result>
+    <div id="result">
+    </div>
 
 </body>
 
