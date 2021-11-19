@@ -1,12 +1,16 @@
 const listsContainer = document.querySelector("[data-lists]" )
 const newListForm = document.querySelector('[data-new-list-form]')
 const newListInput = document.querySelector('[data-new-list-input]')
-const deletListButton = document.querySelector('[data-delete-list-button]')
+const deleteListButton = document.querySelector('[data-delete-list-button]')
 
 const listDisplayContainer = document.querySelector('[data-list-display-container]')
 const listTitleElement = document.querySelector('[data-list-title]')
 const listCountElement = document.querySelector('[data-list-count]')
 const taskContainer = document.querySelector('[data-tasks]')
+const taskTemplate = document.getElementById('task-template')
+const newTaskForm = document.querySelector('[data-new-task-form]')
+const newTaskInput = document.querySelector('[data-new-task-input]')
+const clearCompleteTasksButton = document.qurySelector('[data-clear-complete-tasks-button]')
 
 const LOCAL_STORAGE_LIST_KEY = 'task.lists'
 const LOCAL_STORAGE_SELECTED_LIST_KEY = 'task.selectedListId'
@@ -15,14 +19,30 @@ let selectedListId = local.Storage.getItem(LOCAL_STORAGE_SELECTED_LIST_KEY)
 
 listsContainer.addEventListener('click', e =>  {
     if(e.target.tagName.toLowerCase() === 'li')
-    selectedlistId = e.target.dataset.listId
+    selectedListId = e.target.dataset.listId
+    saveAndRender()
+})
 
+taskContainer.addEventListener('click', e => {
+    if (e.target.tagName.toLowerCase() === 'input'){
+        const selectedList = lists.find(list => list.id === selectedListId)
+        const selectedTask = selectedList.tasks.find(task => task.id === e.target.id)
+        selectedTask.complete = e.target.checked    
+        save()
+        renderTaskCount(selectedList)
+    }
+})
+
+clearCompleteTasksButton.addEventListener('click', e => {
+    const selectedList = lists.find(list => list.if === selectedListId)
+    selectedList.tasks = selected.tasks.filter(task => !task.complete)
+    saveAndRender()
 })
 
 deleteListButton.addEventListener('click', e => {
     lists = lists.filter(list => lists.id !== selectedListId)
     selectedListId = null
-    SaveAndRender()
+    saveAndRender()
 })
 
 
@@ -33,23 +53,29 @@ newListForm.addEventListener('submit', e => {
     const list = createList(listName)
     newListInput.value = null
     lists.push(list)
-    SaveAndRender()
+    saveAndRender()
+})
+
+newTaskForm.addEventListener('submit', e => {
+    e.preventDefault()
+    const taskName = newTaskInput.value
+    if (taskName == null || taskName === '') return 
+    const list = createTask(taskName)
+    newListInput.value = null
+    const selectedList = lists.find(list.id === selectedListId)
+    selectedList = lists.find(list => list.id === selectedListId)
+    selectedList.tasks.push(task)
+    saveAndRender()
 })
 
 function createList(name){
-   return {id: Date.now().toString(), name: name, tasks: []
-       {
-        id: 1,
-        name: 'sdasf'
-        completed: false
-       }
-   ]}
+   return {id: Date.now().toString(), name: name, tasks: []}
 }
 
-function SaveAndRender(){
+function saveAndRender(){
     save()
     render()
-}
+} 
 
 function save(){
     localStorage.setItem(LOCAL_STORAGE_LIST_KEY, JSON.stringify(lists))
@@ -73,7 +99,14 @@ function render() {
 
 function renderTasks(selectedList){
     selectedList.tasks.forEach(task => {
-        
+        const taskElement = document.importNode(taskTemplate.content, true)
+        const checkbox = taskElement.querySelector('input')
+        checkbox.id = task.id
+        checkbox.checked = task.complete
+        const label = taskElement.querySelector('label')
+        label.htmlFor = task.id
+        label.append(task,name)
+        taskContainer.appendChild(taskElement)
     })
 }
 
